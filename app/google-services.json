@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "667193660532",
+    "project_id": "alumnijobportal",
+    "storage_bucket": "alumnijobportal.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:667193660532:android:282553d3556714e4a0ed21",
+        "android_client_info": {
+          "package_name": "com.example.alumnijobportal"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "667193660532-ka1i8nhr7vo3jvfps5l4vs11kjbi3fg8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyASGfg4h3wOfobyc7qYHVre8iAshFUoFr4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "667193660532-ka1i8nhr7vo3jvfps5l4vs11kjbi3fg8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

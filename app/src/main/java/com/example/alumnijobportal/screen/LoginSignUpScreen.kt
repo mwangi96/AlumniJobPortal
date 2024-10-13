@@ -1,6 +1,5 @@
-package com.example.alumnijobportal.screen
-
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.*
@@ -12,13 +11,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.alumnijobportal.R
+import com.example.alumnijobportal.ui.theme.AlumniJobPortalTheme
 
 @Composable
 fun LoginSignUpScreen(navController: NavHostController? = null) {
@@ -28,7 +26,7 @@ fun LoginSignUpScreen(navController: NavHostController? = null) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .background(MaterialTheme.colorScheme.background), // Using theme background
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -42,7 +40,7 @@ fun LoginSignUpScreen(navController: NavHostController? = null) {
                 modifier = Modifier.size(150.dp)
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(15.dp))
 
             // Title
             Text(
@@ -53,53 +51,44 @@ fun LoginSignUpScreen(navController: NavHostController? = null) {
                 modifier = Modifier.padding(bottom = 24.dp)
             )
 
-            // Facebook Button
-            Button(
+            // Facebook Button (OutlinedButton)
+            OutlinedButton(
                 onClick = {
-                    navController?.let {
-                        it.navigate("facebook_login")
-                    } // Navigate only if navController is not null
+                    navController?.navigate("facebook_login")
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(48.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1877F2))
+                    .height(48.dp)
             ) {
-                Text(text = "Continue with Facebook", color = Color.White)
+                Text(text = "Continue with Facebook")
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Google Button
-            Button(
+            // Google Button (OutlinedButton)
+            OutlinedButton(
                 onClick = {
-                    navController?.let {
-                        it.navigate("google_login")
-                    }
+                    navController?.navigate("google_login")
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(48.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFDB4437))
+                    .height(48.dp)
             ) {
-                Text(text = "Continue with Google", color = Color.White)
+                Text(text = "Continue with Google")
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Apple Button
-            Button(
+            // Apple Button (OutlinedButton)
+            OutlinedButton(
                 onClick = {
-                    navController?.let {
-                        it.navigate("apple_login")
-                    }
+                    navController?.navigate("apple_login")
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(48.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF000000))
+                    .height(48.dp)
             ) {
-                Text(text = "Continue with Apple", color = Color.White)
+                Text(text = "Continue with Apple")
             }
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -127,19 +116,16 @@ fun LoginSignUpScreen(navController: NavHostController? = null) {
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Continue Button (Login Screen)
-            Button(
+            // Continue Button (OutlinedButton)
+            OutlinedButton(
                 onClick = {
-                    navController?.let {
-                        it.navigate("login")
-                    }
+                    navController?.navigate("login")
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(48.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6200EE)) // Use your app's primary color
+                    .height(48.dp)
             ) {
-                Text(text = "Continue", color = Color.White)
+                Text(text = "Continue")
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -147,16 +133,14 @@ fun LoginSignUpScreen(navController: NavHostController? = null) {
             // Sign-Up Link
             val annotatedText = buildAnnotatedString {
                 append("Don't have an account? ")
-                withStyle(style = SpanStyle(color = Color.Blue)) {
+                withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
                     append("Sign Up")
                 }
             }
             ClickableText(
                 text = annotatedText,
                 onClick = {
-                    navController?.let {
-                        it.navigate("signup")
-                    }
+                    navController?.navigate("signup")
                 }
             )
         }

@@ -7,11 +7,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -21,9 +21,9 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun LoadScreen(navController: NavController) {
-    // Launches the effect that waits for 5 seconds before navigating
+    // Launches the effect that waits for 9 seconds before navigating
     LaunchedEffect(key1 = true) {
-        delay(5000) // 5 seconds delay
+        delay(9000) // 9 seconds delay
         navController.navigate("intro_screen") {
             popUpTo("loading") { inclusive = true }
         }
@@ -38,12 +38,11 @@ fun LoadScreen(navController: NavController) {
         logoOffsetY = 0.dp
     }
 
-    // Main content layout with white background
+    // Main content layout with background from the theme
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)  // Set white background for the screen
-            .padding(16.dp),
+            .background(MaterialTheme.colorScheme.background),  // Using background from theme
         contentAlignment = Alignment.Center
     ) {
         // Animate the logo's position from bottom to center
@@ -72,7 +71,7 @@ fun LoadScreen(navController: NavController) {
                 modifier = Modifier
                     .padding(top = 200.dp)
                     .size(30.dp), // Size of the progress indicator
-                color = Color.Gray, // Progress indicator color for contrast
+                color = MaterialTheme.colorScheme.primary, // Progress indicator color from theme
                 strokeWidth = 3.dp // Thickness of the progress indicator
             )
         }

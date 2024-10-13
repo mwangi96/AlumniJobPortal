@@ -1,5 +1,6 @@
 package com.example.alumnijobportal.nav
 
+import LoginSignUpScreen
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -7,7 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.alumnijobportal.screen.*
-//import com.example.alumnijobportal.screen.DashboardScreen.DashboardScreen
+import com.example.alumnijobportal.screen.DashboardScreen.DashboardScreen
 import com.example.alumnijobportal.utils.SharedViewModel
 
 @Composable
@@ -60,21 +61,25 @@ fun NavGraph(
         }
 
         // Dashboard screen
-//        composable(route = Screens.DashboardScreen.route) {
-//            DashboardScreen(navController = navController)
-//        }
         composable(
-            route = Screens.DashboardScreen.route,
+            route = Screens.DashboardScreen.route + "/{userName}/{userEmail}/{userRole}",
             arguments = listOf(
                 navArgument("userName") { type = NavType.StringType },
-                navArgument("userEmail") { type = NavType.StringType }
+                navArgument("userEmail") { type = NavType.StringType },
+                navArgument("userRole") { type = NavType.StringType }
             )
         ) { backStackEntry ->
-            val userName = backStackEntry.arguments?.getString("userName")
-            val userEmail = backStackEntry.arguments?.getString("userEmail")
-
-            DashboardScreen(navController = navController, userName = userName, userEmail = userEmail)
+            val userName = backStackEntry.arguments?.getString("userName") ?: "defaultUser"
+            val userEmail = backStackEntry.arguments?.getString("userEmail") ?: "defaultEmail"
+            val userRole = backStackEntry.arguments?.getString("userRole") ?: "alumni"
+            DashboardScreen(
+                navController = navController,
+                userRole = userRole,
+                userName = userName,
+                userEmail = userEmail
+            )
         }
 
     }
 }
+

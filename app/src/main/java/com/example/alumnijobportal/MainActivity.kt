@@ -14,7 +14,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.alumnijobportal.nav.NavGraph
-import com.example.alumnijobportal.nav.Screens
+import com.example.alumnijobportal.screen.DashboardScreen.MainScreen
 import com.example.alumnijobportal.ui.theme.AlumniJobPortalTheme
 import com.example.alumnijobportal.utils.SharedViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -22,7 +22,6 @@ import com.google.firebase.auth.FirebaseAuth
 class MainActivity : ComponentActivity() {
 
     private lateinit var auth: FirebaseAuth
-
     private lateinit var navController: NavHostController
     private val sharedViewModel: SharedViewModel by viewModels()
 
@@ -30,6 +29,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         enableEdgeToEdge()
+
+        // Initialize Firebase Auth
+        auth = FirebaseAuth.getInstance()
 
         setContent {
             AlumniJobPortalTheme {
@@ -41,6 +43,13 @@ class MainActivity : ComponentActivity() {
 
                     // Calling the NavGraph that contains the composables with screens
                     NavGraph(navController = navController, sharedViewModel = sharedViewModel)
+
+                    // Using placeholder values
+                    MainScreen(
+                        userRole = "admin", // or "alumni"
+                        userEmail = "user@example.com", // Placeholder email
+                        userName = "User Name" // Placeholder name
+                    )
                 }
             }
         }
@@ -50,7 +59,7 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun AlumniJobPortalScreenPreview() {
         AlumniJobPortalTheme {
-            Screens.DashboardScreen
+            MainScreen(userRole = "admin", userEmail = "user@example.com", userName = "User Name")
         }
     }
 }

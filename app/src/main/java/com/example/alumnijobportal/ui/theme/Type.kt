@@ -1,6 +1,5 @@
 package com.example.alumnijobportal.ui.theme
 
-import android.graphics.fonts.Font
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -19,14 +18,14 @@ val provider = GoogleFont.Provider(
 
 val bodyFontFamily = FontFamily(
     Font(
-        googleFont = GoogleFont("Actor"),
+        googleFont = GoogleFont("Roboto Mono"),
         fontProvider = provider,
     )
 )
 
 val displayFontFamily = FontFamily(
     Font(
-        googleFont = GoogleFont("ABeeZee"),
+        googleFont = GoogleFont("Roboto Mono"),
         fontProvider = provider,
     )
 )

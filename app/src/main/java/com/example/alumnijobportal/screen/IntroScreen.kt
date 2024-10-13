@@ -17,13 +17,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import androidx.compose.ui.text.style.TextAlign
 import com.example.alumnijobportal.R
+import com.example.alumnijobportal.ui.theme.AlumniJobPortalTheme
 
 @Composable
 fun IntroScreen(navController: NavHostController? = null) {
     Box(
         modifier = Modifier
             .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background), // Using theme background
     ) {
         // Background Image that fills the entire screen
         Image(
@@ -39,8 +42,8 @@ fun IntroScreen(navController: NavHostController? = null) {
                 .fillMaxSize()
                 .background(
                     Brush.verticalGradient(
-                        colors = listOf(Color.Transparent, Color.White.copy(alpha = 0.8f)),
-                        startY = 400f  // Adjust to control where the gradient starts
+                        colors = listOf(Color.Transparent, MaterialTheme.colorScheme.background.copy(alpha = 0.8f)),
+                        startY = 600f  // Adjust to control where the gradient starts
                     )
                 )
                 .padding(16.dp),
@@ -52,7 +55,7 @@ fun IntroScreen(navController: NavHostController? = null) {
                 text = "Find the best jobs around you, fast.",
                 fontSize = 28.sp,  // Increased font size for title
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF1A237E), // Darker blue for contrast
+                color = MaterialTheme.colorScheme.onPrimary, // Using primary color from theme
                 modifier = Modifier.padding(bottom = 12.dp)  // Adjusted padding
             )
 
@@ -60,9 +63,9 @@ fun IntroScreen(navController: NavHostController? = null) {
             Text(
                 text = "Build your profile, explore and apply to your favorite jobs and get contacted by employers on the go.",
                 fontSize = 16.sp,
-                color = Color.Red,
+                color = MaterialTheme.colorScheme.scrim, // Using secondary color from theme
                 modifier = Modifier.padding(bottom = 32.dp),  // Adjusted padding for spacing
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                textAlign = TextAlign.Center
             )
 
             Spacer(modifier = Modifier.height(5.dp))
@@ -77,10 +80,10 @@ fun IntroScreen(navController: NavHostController? = null) {
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
                     .height(48.dp),  // Button size
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6200EE)),  // Button color
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),  // Button color from theme
                 shape = RoundedCornerShape(24.dp)  // Rounded corners
             ) {
-                Text(text = "Next", color = Color.White, fontSize = 16.sp)
+                Text(text = "Next", color = MaterialTheme.colorScheme.onPrimary, fontSize = 16.sp)  // Button text color from theme
             }
 
             Spacer(modifier = Modifier.height(50.dp))  // Adjusted bottom spacing
@@ -91,5 +94,7 @@ fun IntroScreen(navController: NavHostController? = null) {
 @Preview(showBackground = true)
 @Composable
 fun IntroScreenPreview() {
-    IntroScreen()
+    AlumniJobPortalTheme {
+        IntroScreen()
+    }
 }

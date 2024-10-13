@@ -1,6 +1,7 @@
 package com.example.alumnijobportal.screen
 
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -23,9 +24,13 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.example.alumnijobportal.R
+import com.example.alumnijobportal.nav.Screens
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.firestore.FirebaseFirestore
+
 
 
 lateinit var auth: FirebaseAuth
@@ -47,7 +52,7 @@ fun LoginScreen(navController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White),
+            .background(Color.LightGray),
         contentAlignment = Alignment.Center
     ) {
         Card(
@@ -80,7 +85,7 @@ fun LoginScreen(navController: NavController) {
                     contentDescription = "Login"
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(14.dp))
 
                 TextField(
                     value = email,
@@ -149,12 +154,14 @@ fun LoginScreen(navController: NavController) {
                 Button(
                     onClick = {
                         if (password == confirmPassword) {
-                            signIn(email, password, { user ->
-                                successMessage = "login successfully"
+                            signIn(email, password, { user, userRole ->
+                                successMessage = "Login successfully"
                                 // Navigate to DashboardScreen on successful sign in
                                 val userName = user?.displayName ?: "Unknown User"
                                 val userEmail = user?.email ?: "Unknown Email"
-                                navController.navigate("dashboard_screen/$userName/$userEmail")
+                                // Navigate to DashboardScreen on successful sign in
+//                                navController.navigate("dashboard_screen/$userName/$userEmail/$userRole")
+                                navController.navigate("${Screens.DashboardScreen.route}/$userName/$userEmail/$userRole")
                             }, { error ->
                                 errorMessage = error
                             })
@@ -163,7 +170,7 @@ fun LoginScreen(navController: NavController) {
                         }
                     },
                     modifier = Modifier.fillMaxWidth()
-                ) {
+                        ) {
                     Text("Login")
                 }
 
@@ -182,6 +189,7 @@ fun LoginScreen(navController: NavController) {
     }
 }
 
+
 private fun forgotPassword(email: String, context: Context) {
     auth.sendPasswordResetEmail(email)
         .addOnCompleteListener { task ->
@@ -193,13 +201,33 @@ private fun forgotPassword(email: String, context: Context) {
         }
 }
 
-private fun signIn(email: String, password: String, onSuccess: (FirebaseUser?) -> Unit, onFailure: (String) -> Unit) {
+private fun signIn(
+    email: String,
+    password: String,
+    onSuccess: (FirebaseUser?, String) -> Unit,
+    onFailure: (String) -> Unit
+) {
     auth.signInWithEmailAndPassword(email, password)
         .addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 val user = auth.currentUser
                 if (user != null && user.isEmailVerified) {
-                    onSuccess(user)
+                    val userId = user.uid
+                    val db = FirebaseFirestore.getInstance()
+                    db.collection("users").document(userId)
+                        .get()
+                        .addOnSuccessListener { document ->
+                            if (document != null) {
+                                val userRole = document.getString("role") ?: "Unknown Role"
+                                Log.d("SignIn", "User role fetched: $userRole")
+                                onSuccess(user, userRole)
+                            } else {
+                                onFailure("User document does not exist.")
+                            }
+                        }
+                        .addOnFailureListener { e ->
+                            onFailure("Failed to fetch user role: ${e.message}")
+                        }
                 } else {
                     auth.signOut()
                     onFailure("Please verify your email first")

@@ -1,4 +1,5 @@
 import com.android.utils.TraceUtils.simpleId
+import org.jetbrains.kotlin.gradle.targets.js.KotlinJsCompilerAttribute
 
 plugins {
     alias(libs.plugins.android.application)
@@ -64,6 +65,15 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
+    implementation(libs.androidx.navigation.compose)
+    implementation ("androidx.compose.material:material:1.0.0")
+    implementation("androidx.compose.material3:material3:1.2.0")
+//    implementation (libs.androidx.compose.material)
+//    implementation(platform("androidx.compose.bom:1.5.1"))
+//    implementation("androidx.compose.material3:material3:1.2.0")
+    implementation("androidx.compose.ui:ui:1.5.1")
+    implementation("androidx.compose.ui:ui-tooling-preview:1.5.1")
+    implementation("androidx.navigation:navigation-compose:2.6.0")
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
@@ -79,6 +89,8 @@ dependencies {
     implementation(libs.androidx.foundation.android)
     implementation(libs.androidx.foundation.layout.android)
     implementation(libs.support.annotations)
+    implementation(libs.firebase.vertexai)
+    implementation(libs.material)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

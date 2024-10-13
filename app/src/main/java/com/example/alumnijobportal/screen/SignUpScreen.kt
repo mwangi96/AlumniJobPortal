@@ -26,6 +26,8 @@ import com.example.alumnijobportal.nav.Screens
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.userProfileChangeRequest
+import com.google.firebase.firestore.FirebaseFirestore
+
 
 @Composable
 fun SignUpScreen(navController: NavController) {
@@ -45,7 +47,7 @@ fun SignUpScreen(navController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White),
+            .background(Color.LightGray),
         contentAlignment = Alignment.Center
     ) {
         Card(
@@ -78,7 +80,7 @@ fun SignUpScreen(navController: NavController) {
                     contentDescription = "Sign Up"
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(14.dp))
 
                 // Username TextField
                 TextField(
@@ -145,13 +147,19 @@ fun SignUpScreen(navController: NavController) {
 
                 Button(
                     onClick = {
-                        signUp(username, email, password, { user ->
-                            successMessage = "sign up successfully"
-                            // Navigate to LoginScreen on successful sign up
-                            navController.navigate(Screens.LoginScreen.route)
-                        }, { error ->
-                            errorMessage = error
-                        })
+                        // Automatically assign the role as 'alumni'
+                        val role = "alumni"
+                        if (password == confirmPassword) {
+                            signUp(username, email, password, role, { _ ->
+                                successMessage = "Sign up successfully"
+                                // Navigate to LoginScreen on successful sign up
+                                navController.navigate(Screens.LoginScreen.route)
+                            }, { error ->
+                                errorMessage = error
+                            })
+                        } else {
+                            errorMessage = "Passwords do not match"
+                        }
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -181,46 +189,54 @@ fun SignUpScreen(navController: NavController) {
     }
 }
 
+
 private fun signUp(
-    username: String, // Added username parameter
+    username: String,
     email: String,
     password: String,
+    role: String, // Add role parameter (admin or alumni)
     onSuccess: (FirebaseUser?) -> Unit,
     onFailure: (String) -> Unit
 ) {
-    // Use createUserWithEmailAndPassword for signing up new users
     auth.createUserWithEmailAndPassword(email, password)
         .addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 val user = auth.currentUser
-
-                // Check if the user was created successfully
                 user?.let {
-                    // Update the user profile with the username (display name)
                     val profileUpdates = userProfileChangeRequest {
-                        displayName = username // Set the display name to the username
+                        displayName = username
                     }
-
-                    user.updateProfile(profileUpdates)
-                        .addOnCompleteListener { profileUpdateTask ->
-                            if (profileUpdateTask.isSuccessful) {
-                                // Send verification email
-                                user.sendEmailVerification()
-                                    .addOnCompleteListener { emailVerificationTask ->
-                                        if (emailVerificationTask.isSuccessful) {
-                                            onSuccess(it) // Continue with the signup process
-                                        } else {
-                                            onFailure("Failed to send verification email: ${emailVerificationTask.exception?.message}")
+                    user.updateProfile(profileUpdates).addOnCompleteListener { profileUpdateTask ->
+                        if (profileUpdateTask.isSuccessful) {
+                            user.sendEmailVerification().addOnCompleteListener { emailVerificationTask ->
+                                if (emailVerificationTask.isSuccessful) {
+                                    // Add user data including role to Firestore
+                                    val db = FirebaseFirestore.getInstance()
+                                    val userId = user.uid
+                                    val userData = hashMapOf(
+                                        "username" to username,
+                                        "email" to email,
+                                        "role" to role  // Store user role here
+                                    )
+                                    db.collection("users").document(userId)
+                                        .set(userData)
+                                        .addOnSuccessListener {
+                                            onSuccess(user)
                                         }
-                                    }
-                            } else {
-                                onFailure("Failed to update profile: ${profileUpdateTask.exception?.message}")
+                                        .addOnFailureListener { e ->
+                                            onFailure("Failed to store user data: ${e.message}")
+                                        }
+                                } else {
+                                    onFailure("Failed to send verification email: ${emailVerificationTask.exception?.message}")
+                                }
                             }
+                        } else {
+                            onFailure("Failed to update profile: ${profileUpdateTask.exception?.message}")
                         }
+                    }
                 }
             } else {
                 onFailure(task.exception?.message ?: "Sign up failed")
             }
         }
 }
-

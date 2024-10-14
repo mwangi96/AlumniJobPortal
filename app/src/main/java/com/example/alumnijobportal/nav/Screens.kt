@@ -11,12 +11,26 @@ sealed class Screens(val route: String) {
     data object AppleLoginScreen : Screens(route = "apple_login")
 //    data object ProfileScreen:Screens(route = "profile" )
     data object DashboardScreen : Screens("dashboard_screen/{userName}/{userEmail}/{userRole}")
-    // Define new screens for the bottom navigation
-//    data object HomeScreen : Screens("home")
-//    data object PostedJobsScreen : Screens("posted_jobs")
-//    data object BrowseJobsScreen : Screens("browse_jobs")
-//    data object JobPostScreen : Screens("post_job")
-//    data object MyApplicationsScreen : Screens("my_applications")
-//    data object ChatScreen : Screens("chat")
-//    data object ProfileScreen : Screens("profile")
+    // Define routes for bottom navigation screens
+    data object HomeScreen : Screens(route ="home")
+    data object PostedJobsScreen : Screens(route ="posted job")
+    data object JobPostScreen : Screens(route = "post job")
+    data object MyApplicationsScreen : Screens(route ="applications")
+    data object ChatScreen : Screens(route ="chat")
+    data object ProfileScreen : Screens(route ="profile")
+
+    // Admin-specific screens
+    data object AdminBlogScreen : Screens(route = "admin_blog")
+    data object ContactUsScreen : Screens(route = "admin_contact_us")
+    data object AdminMeetingsScreen : Screens(route = "admin_meetings")
+    data object AdminPostedJobsScreen : Screens(route = "admin_posted_jobs")
+
+
+    // Alumni-specific screens
+    data object BuildResumeScreen : Screens(route = "build_resume")
+    data object BlogScreen : Screens(route = "blog")
+    data object ProfileCompletionGuideScreen : Screens(route = "profile_completion_guide")
+    data object SavedJobsScreen : Screens(route = "saved_jobs")
+    data object MeetingsScreen : Screens(route = "meetings")
+
 }

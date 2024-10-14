@@ -2,6 +2,24 @@ package com.example.alumnijobportal.utils
 
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
+import java.util.UUID
+
+// JobData model for job posts
+data class JobData(
+    val id: String = "",  // Document ID
+    val title: String? = null,
+    val companyName: String? = null,
+    val workplaceType: String? = null,
+    val employmentType: String? = null,
+    val currency: String? = null,
+    val salaryType: String? = null,
+    val minSalary: String? = null,
+    val maxSalary: String? = null,
+    val location: String? = null,
+    val description: String? = null,
+    val skills: List<String> = emptyList(),
+    val screeningQuestions: List<String> = emptyList()
+)
 
 class SaveJobToFirebase {
 
@@ -22,20 +40,24 @@ class SaveJobToFirebase {
         onSuccess: () -> Unit,  // Callback for success case
         onFailure: (Exception) -> Unit  // Callback for failure case
     ) {
-        // Create a map for the job data
-        val jobData = mapOf(
-            "jobTitle" to jobTitle,
-            "companyName" to companyName,
-            "workplaceType" to workplaceType,
-            "employmentType" to employmentType,
-            "currency" to currency,
-            "salaryType" to salaryType,
-            "minSalary" to minSalary,
-            "maxSalary" to maxSalary,
-            "location" to location,
-            "jobDescription" to jobDescription,
-            "skills" to skills,
-            "screeningQuestions" to screeningQuestions
+        // Generate a unique job ID
+        val jobId = UUID.randomUUID().toString()
+
+        // Create a JobData object
+        val jobData = JobData(
+            id = jobId,
+            title = jobTitle,
+            companyName = companyName,
+            workplaceType = workplaceType,
+            employmentType = employmentType,
+            currency = currency,
+            salaryType = salaryType,
+            minSalary = minSalary,
+            maxSalary = maxSalary,
+            location = location,
+            description = jobDescription,
+            skills = skills,
+            screeningQuestions = screeningQuestions
         )
 
         // Get Firestore instance
@@ -43,16 +65,15 @@ class SaveJobToFirebase {
 
         // Add the job data to the "jobs" collection
         db.collection("jobs")
-            .add(jobData)
-            .addOnSuccessListener { documentReference ->
-                Log.d(TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
-                // Call the success callback
-                onSuccess()
+            .document(jobId) // Use the generated job ID as the document ID
+            .set(jobData)  // Use the JobData model to store job data
+            .addOnSuccessListener {
+                Log.d(TAG, "Job posted successfully with ID: $jobId")
+                onSuccess()  // Call the success callback
             }
             .addOnFailureListener { e ->
-                Log.w(TAG, "Error adding document", e)
-                // Call the failure callback
-                onFailure(e)
+                Log.e(TAG, "Error posting job", e)
+                onFailure(e)  // Call the failure callback
             }
     }
 

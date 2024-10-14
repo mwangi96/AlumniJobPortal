@@ -1,5 +1,6 @@
 package com.example.alumnijobportal
 
+import SharedViewModel
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -17,7 +18,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.alumnijobportal.nav.NavGraph
 import com.example.alumnijobportal.ui.theme.AlumniJobPortalTheme
-import com.example.alumnijobportal.utils.SharedViewModel
 import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : ComponentActivity() {

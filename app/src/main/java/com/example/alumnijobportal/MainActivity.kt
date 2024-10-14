@@ -10,11 +10,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.alumnijobportal.nav.NavGraph
-import com.example.alumnijobportal.screen.DashboardScreen.MainScreen
 import com.example.alumnijobportal.ui.theme.AlumniJobPortalTheme
 import com.example.alumnijobportal.utils.SharedViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -22,7 +23,6 @@ import com.google.firebase.auth.FirebaseAuth
 class MainActivity : ComponentActivity() {
 
     private lateinit var auth: FirebaseAuth
-    private lateinit var navController: NavHostController
     private val sharedViewModel: SharedViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,16 +39,11 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    navController = rememberNavController()
+                    val navController = rememberNavController()
 
-                    // Calling the NavGraph that contains the composables with screens
-                    NavGraph(navController = navController, sharedViewModel = sharedViewModel)
-
-                    // Using placeholder values
-                    MainScreen(
-                        userRole = "admin", // or "alumni"
-                        userEmail = "user@example.com", // Placeholder email
-                        userName = "User Name" // Placeholder name
+                    NavGraph(
+                        navController = navController,
+                        sharedViewModel = sharedViewModel
                     )
                 }
             }
@@ -59,7 +54,11 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun AlumniJobPortalScreenPreview() {
         AlumniJobPortalTheme {
-            MainScreen(userRole = "admin", userEmail = "user@example.com", userName = "User Name")
+            val navController = rememberNavController()
+            NavGraph(
+                navController = navController,
+                sharedViewModel = SharedViewModel()
+            )
         }
     }
 }

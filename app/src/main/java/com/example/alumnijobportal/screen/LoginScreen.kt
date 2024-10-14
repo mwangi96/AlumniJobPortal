@@ -159,10 +159,13 @@ fun LoginScreen(navController: NavController) {
                                 // Navigate to DashboardScreen on successful sign in
                                 val userName = user?.displayName ?: "Unknown User"
                                 val userEmail = user?.email ?: "Unknown Email"
-                                // Navigate to DashboardScreen on successful sign in
-//                                navController.navigate("dashboard_screen/$userName/$userEmail/$userRole")
-                                navController.navigate("${Screens.DashboardScreen.route}/$userName/$userEmail/$userRole")
+                                // Updated navigation with proper route and arguments
+                                navController.navigate("${Screens.DashboardScreen.route}/$userName/$userEmail/$userRole") {
+                                    popUpTo(Screens.LoginScreen.route) { inclusive = true }
+                                    launchSingleTop = true
+                                }
                             }, { error ->
+
                                 errorMessage = error
                             })
                         } else {

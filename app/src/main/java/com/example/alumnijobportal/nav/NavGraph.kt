@@ -16,6 +16,7 @@ fun NavGraph(
     navController: NavHostController,
     sharedViewModel: SharedViewModel
 ) {
+
     NavHost(
         navController = navController,
         startDestination = Screens.LoadScreen.route // Set LoadScreen as the start screen
@@ -72,6 +73,7 @@ fun NavGraph(
             val userName = backStackEntry.arguments?.getString("userName") ?: "defaultUser"
             val userEmail = backStackEntry.arguments?.getString("userEmail") ?: "defaultEmail"
             val userRole = backStackEntry.arguments?.getString("userRole") ?: "alumni"
+
             DashboardScreen(
                 navController = navController,
                 userRole = userRole,
@@ -79,7 +81,5 @@ fun NavGraph(
                 userEmail = userEmail
             )
         }
-
     }
 }
-

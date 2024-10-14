@@ -1,6 +1,7 @@
 package com.example.alumnijobportal.nav
 
 import LoginSignUpScreen
+import SharedViewModel
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -9,12 +10,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.alumnijobportal.screen.*
 import com.example.alumnijobportal.screen.DashboardScreen.DashboardScreen
-import com.example.alumnijobportal.utils.SharedViewModel
 
 @Composable
 fun NavGraph(
     navController: NavHostController,
-    sharedViewModel: SharedViewModel
+    sharedViewModel: SharedViewModel // Pass the ViewModel
 ) {
 
     NavHost(
@@ -61,6 +61,20 @@ fun NavGraph(
             AppleLoginScreen(navController = navController)
         }
 
+        // JobPostScreen route
+         composable(Screens.JobPostScreen.route) {
+             JobPostScreen(navController = navController)
+         }
+
+        // Home screen with skills list
+        composable(route = Screens.HomeScreen.route) {
+            // Replace with the actual skills list or a variable
+            val skills = listOf("Skill1", "Skill2", "Skill3") // Example skills
+            HomeScreen(navController = navController, skills = skills, sharedViewModel = sharedViewModel)
+        }
+
+
+
         // Dashboard screen
         composable(
             route = Screens.DashboardScreen.route + "/{userName}/{userEmail}/{userRole}",
@@ -78,7 +92,8 @@ fun NavGraph(
                 navController = navController,
                 userRole = userRole,
                 userName = userName,
-                userEmail = userEmail
+                userEmail = userEmail,
+                sharedViewModel = sharedViewModel // Pass the ViewModel here
             )
         }
     }

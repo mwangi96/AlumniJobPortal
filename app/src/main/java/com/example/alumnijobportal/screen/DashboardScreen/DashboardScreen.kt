@@ -2,15 +2,13 @@ package com.example.alumnijobportal.screen.DashboardScreen
 
 import SharedViewModel
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
@@ -29,7 +27,6 @@ import androidx.navigation.NavHostController
 import com.example.alumnijobportal.R
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
-import androidx.compose.runtime.remember
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -40,6 +37,7 @@ import com.example.alumnijobportal.screen.ChatScreen
 import com.example.alumnijobportal.screen.ProfileScreen
 import com.example.alumnijobportal.screen.HomeScreen
 import com.example.alumnijobportal.screen.ApplicationScreen
+import com.example.alumnijobportal.screen.JobDetailScreen
 
 // Define a sealed class for NavIcon
 sealed class NavIcon {
@@ -49,8 +47,6 @@ sealed class NavIcon {
 
 // Define a BottomNavItem data class
 data class BottomNavItem(val label: String, val icon: NavIcon, val route: String)
-
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -84,8 +80,7 @@ fun DashboardScreen(
                 )
             }
         }
-    )
- {
+    ) {
         Scaffold(
             topBar = {
                 TopAppBar(
@@ -129,13 +124,15 @@ fun DashboardScreen(
                         ProfileScreen(navController = internalNavController)
                     }
                     // In your DashboardScreen, when navigating to HomeScreen
-                    composable(Screens.HomeScreen.route + "/{skills}") { backStackEntry ->
-                        val skillsString = backStackEntry.arguments?.getString("skills") ?: ""
-                        val skillsList = skillsString.split(",").map { it.trim() }
-                        HomeScreen(navController = internalNavController, skills = skillsList, sharedViewModel = sharedViewModel) // Pass sharedViewModel
+                    composable(Screens.HomeScreen.route) {
+                        HomeScreen(navController = internalNavController, sharedViewModel = sharedViewModel) // Pass sharedViewModel
                     }
-                    composable(Screens.MyApplicationsScreen.route) {
-                        ApplicationScreen(navController = internalNavController)
+                    composable(Screens.ApplicationScreen.route) {
+                        ApplicationScreen(navController = internalNavController, userEmail = userEmail) // Pass userEmail here
+                    }
+                    composable("jobDetail/{jobId}") { backStackEntry ->
+                        val jobId = backStackEntry.arguments?.getString("jobId") ?: return@composable
+                        JobDetailScreen(navController = internalNavController, jobId = jobId, userEmail = userEmail) // Pass userEmail as needed
                     }
                 }
 
@@ -144,7 +141,6 @@ fun DashboardScreen(
         }
     }
 }
-
 
 @Composable
 fun CustomNavigationBar(userType: String, navController: NavHostController, onItemSelected: (String) -> Unit) {
@@ -158,7 +154,7 @@ fun CustomNavigationBar(userType: String, navController: NavHostController, onIt
     } else {
         listOf(
             BottomNavItem("Home", NavIcon.Vector(Icons.Default.Home), Screens.HomeScreen.route),
-            BottomNavItem("Application", NavIcon.Drawable(painterResource(R.drawable.ic_applications)), Screens.MyApplicationsScreen.route),
+            BottomNavItem("Application", NavIcon.Drawable(painterResource(R.drawable.ic_applications)), Screens.ApplicationScreen.route),
             BottomNavItem("Chat", NavIcon.Drawable(painterResource(R.drawable.ic_chat)), Screens.ChatScreen.route),
             BottomNavItem("Profile", NavIcon.Vector(Icons.Default.Person), Screens.ProfileScreen.route)
         )
@@ -193,7 +189,6 @@ fun CustomNavigationBar(userType: String, navController: NavHostController, onIt
         }
     }
 }
-
 
 @Composable
 fun AdminDrawer(isExpanded: Boolean, onToggle: () -> Unit, navController: NavHostController) {
@@ -257,6 +252,9 @@ fun AlumniDrawer(isExpanded: Boolean, onToggle: () -> Unit, navController: NavHo
                 Text("Profile Completion Guide", modifier = Modifier
                     .clickable { navController.navigate(Screens.ProfileCompletionGuideScreen.route) }
                     .padding(start = 16.dp))
+                Text("Contact Us", modifier = Modifier
+                    .clickable { navController.navigate(Screens.ContactUsScreen.route) }
+                    .padding(start = 16.dp))
                 Text("Saved Jobs", modifier = Modifier
                     .clickable { navController.navigate(Screens.SavedJobsScreen.route) }
                     .padding(start = 16.dp))
@@ -268,8 +266,7 @@ fun AlumniDrawer(isExpanded: Boolean, onToggle: () -> Unit, navController: NavHo
                         FirebaseAuth.getInstance().signOut()
                     }
                     .padding(start = 16.dp))
-
-                Spacer(modifier = Modifier.height(16.dp)) // Add spacing at the bottom
+                Spacer(modifier = Modifier.weight(1f))
             }
         }
     }

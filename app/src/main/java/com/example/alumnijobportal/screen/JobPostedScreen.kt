@@ -6,8 +6,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.alumnijobportal.utils.JobData
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.toObject
 
@@ -17,7 +20,12 @@ data class JobPosting(
     val jobTitle: String = "",
     val companyName: String = "",
     val location: String = "",
-    val jobDescription: String = ""
+    val jobDescription: String = "",
+    val minSalary: String = "",
+    val maxSalary: String = "",
+    val salaryType: String = "", // Add this field
+    val employmentType: String = "",
+    val applicantCount: Int = 0 // Add applicant count
 )
 
 @Composable
@@ -35,7 +43,19 @@ fun JobsPostedScreen(navController: NavHostController) {
             .get()
             .addOnSuccessListener { result ->
                 val jobs = result.mapNotNull { document ->
-                    document.toObject(JobPosting::class.java).copy(id = document.id)
+                    document.toObject(JobData::class.java).copy(id = document.id)
+                }.map { jobData ->
+                    JobPosting(
+                        id = jobData.id,
+                        jobTitle = jobData.jobTitle ?: "",  // Ensure jobTitle is passed correctly
+                        companyName = jobData.companyName ?: "",
+                        location = jobData.location ?: "",
+                        jobDescription = jobData.description ?: "",
+                        minSalary = jobData.minSalary ?: "",
+                        maxSalary = jobData.maxSalary ?: "",
+                        salaryType = jobData.salaryType ?: "",
+                        employmentType = jobData.employmentType ?: ""
+                    )
                 }
                 jobPostings = jobs
                 isLoading = false
@@ -53,8 +73,6 @@ fun JobsPostedScreen(navController: NavHostController) {
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalAlignment = Alignment.Start
     ) {
-        Text("Posted Jobs", style = MaterialTheme.typography.titleLarge)
-
         when {
             isLoading -> {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -67,7 +85,7 @@ fun JobsPostedScreen(navController: NavHostController) {
             jobPostings.isNotEmpty() -> {
                 // List of job postings with click handling
                 jobPostings.forEach { job ->
-                    JobCard(job = job, navController = navController)
+                    JobCardInPostedScreen(job = job, navController = navController)
                 }
             }
             else -> {
@@ -78,25 +96,52 @@ fun JobsPostedScreen(navController: NavHostController) {
 }
 
 @Composable
-fun JobCard(job: JobPosting, navController: NavHostController) {
+fun JobCardInPostedScreen(job: JobPosting, navController: NavHostController) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
             .clickable {
-                // Navigate to JobDetailScreen with the job ID
-                navController.navigate("jobDetail/${job.id}")
+                // Navigate to ApplicantsScreen with the job ID using the standard navigation route
+                navController.navigate("applicants/${job.id}")
             },
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        shape = MaterialTheme.shapes.medium // Add rounded corners
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            Text(job.jobTitle, style = MaterialTheme.typography.titleMedium)
-            Text("Company: ${job.companyName}")
-            Text("Location: ${job.location}")
-            Text("Description: ${job.jobDescription}")
+            // Job Title and Company Name
+            Text(job.jobTitle, style = MaterialTheme.typography.titleMedium, color = Color.White)
+            Text(job.companyName, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
+
+            // Display dynamic applicant count
+            Text("Applicants: ${job.applicantCount}", style = MaterialTheme.typography.bodySmall)
+
+            // Divider
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+            // Job Details
+            Text(job.location, style = MaterialTheme.typography.bodyMedium)
+
+            Text("${job.minSalary} - ${job.maxSalary} / ${job.salaryType}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
+
+            // Employment Type styled like a button
+            Surface(
+                modifier = Modifier
+                    .padding(top = 4.dp) // Add some space above
+                    .padding(horizontal = 8.dp), // Add horizontal padding
+                shape = MaterialTheme.shapes.medium,
+                color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f), // Background color
+                contentColor = MaterialTheme.colorScheme.onSecondary // Text color
+            ) {
+                Text(
+                    job.employmentType,
+                    modifier = Modifier.padding(8.dp), // Padding inside the button
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
         }
     }
 }

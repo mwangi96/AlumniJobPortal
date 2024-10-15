@@ -4,18 +4,19 @@ import LoginSignUpScreen
 import SharedViewModel
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.navArgument
 import com.example.alumnijobportal.screen.*
 import com.example.alumnijobportal.screen.DashboardScreen.DashboardScreen
+
 
 @Composable
 fun NavGraph(
     navController: NavHostController,
-    sharedViewModel: SharedViewModel // Pass the ViewModel
+    sharedViewModel: SharedViewModel,
 ) {
+    // Extract userEmail safely, providing a default if it's null
+    val userEmail = sharedViewModel.userEmail.value ?: ""
 
     NavHost(
         navController = navController,
@@ -42,9 +43,11 @@ fun NavGraph(
         }
 
         // Login screen
+        // Login screen
         composable(route = Screens.LoginScreen.route) {
-            LoginScreen(navController = navController)
+            LoginScreen(navController = navController, sharedViewModel = sharedViewModel)
         }
+
 
         // Facebook Login screen
         composable(route = Screens.FacebookLoginScreen.route) {
@@ -62,38 +65,40 @@ fun NavGraph(
         }
 
         // JobPostScreen route
-         composable(Screens.JobPostScreen.route) {
-             JobPostScreen(navController = navController)
-         }
-
-        // Home screen with skills list
-        composable(route = Screens.HomeScreen.route) {
-            // Replace with the actual skills list or a variable
-            val skills = listOf("Skill1", "Skill2", "Skill3") // Example skills
-            HomeScreen(navController = navController, skills = skills, sharedViewModel = sharedViewModel)
+        composable(Screens.JobPostScreen.route) {
+            JobPostScreen(navController = navController)
         }
 
+        // Home screen without skills list
+        composable(route = Screens.HomeScreen.route) {
+            HomeScreen(navController = navController, sharedViewModel = sharedViewModel)
+        }
 
+        // ApplicantsScreen route without parameters
+        composable(route = Screens.ApplicantsScreen.route) { backStackEntry ->
+            val jobId = backStackEntry.arguments?.getString("jobId")
+            ApplicantsScreen(jobId = jobId, navController = navController)
+        }
 
-        // Dashboard screen
-        composable(
-            route = Screens.DashboardScreen.route + "/{userName}/{userEmail}/{userRole}",
-            arguments = listOf(
-                navArgument("userName") { type = NavType.StringType },
-                navArgument("userEmail") { type = NavType.StringType },
-                navArgument("userRole") { type = NavType.StringType }
-            )
-        ) { backStackEntry ->
-            val userName = backStackEntry.arguments?.getString("userName") ?: "defaultUser"
-            val userEmail = backStackEntry.arguments?.getString("userEmail") ?: "defaultEmail"
-            val userRole = backStackEntry.arguments?.getString("userRole") ?: "alumni"
+        // Applications screen
+        composable(route = Screens.ApplicationScreen.route) {
+            ApplicationScreen(navController = navController, userEmail = userEmail)
+        }
 
+        // JobDetailScreen route using jobId and email
+        composable(route = Screens.JobDetailScreen.route) {
+            val jobId = sharedViewModel.selectedJobId.value ?: "" // Provide a default if null
+            JobDetailScreen(navController = navController, jobId = jobId, userEmail = userEmail)
+        }
+
+        // Dashboard screen with proper parameters
+        composable(route = Screens.DashboardScreen.route) {
             DashboardScreen(
                 navController = navController,
-                userRole = userRole,
-                userName = userName,
+                userRole = sharedViewModel.userRole.value ?: "defaultRole", // Provide a default
+                userName = sharedViewModel.userName.value ?: "defaultName", // Provide a default
                 userEmail = userEmail,
-                sharedViewModel = sharedViewModel // Pass the ViewModel here
+                sharedViewModel = sharedViewModel // Pass the sharedViewModel here
             )
         }
     }

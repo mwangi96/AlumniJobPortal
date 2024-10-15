@@ -12,7 +12,6 @@ import androidx.navigation.NavController
 import com.example.alumnijobportal.utils.JobData
 import com.google.firebase.firestore.FirebaseFirestore
 
-
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -72,42 +71,116 @@ fun JobDetailScreen(navController: NavController, jobId: String, userEmail: Stri
                             modifier = Modifier
                                 .fillMaxSize()
                                 .padding(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                            horizontalAlignment = Alignment.Start
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            Text("Title: ${jobData.title}", style = MaterialTheme.typography.titleLarge)
-                            Text("Company: ${jobData.companyName}", style = MaterialTheme.typography.titleMedium)
-                            Text("Location: ${jobData.location}")
-                            Text("Workplace Type: ${jobData.workplaceType}")
-                            Text("Employment Type: ${jobData.employmentType}")
-                            Text("Currency: ${jobData.currency}")
-                            Text("Salary Type: ${jobData.salaryType}")
-                            Text("Min Salary: ${jobData.minSalary}")
-                            Text("Max Salary: ${jobData.maxSalary}")
-                            Text("Description: ${jobData.description}")
+                            // Top Section with only available fields
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(12.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    jobData.jobTitle?.let {
+                                        Text(
+                                            text = it,
+                                            style = MaterialTheme.typography.titleLarge
+                                        )
+                                    }
+                                    jobData.companyName?.let {
+                                        Text(
+                                            text = it,
+                                            style = MaterialTheme.typography.titleMedium,
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
+                                    }
+                                    jobData.location?.let {
+                                        Text(it)
+                                    }
+                                    jobData.minSalary?.let { minSal ->
+                                        jobData.maxSalary?.let { maxSal ->
+                                            jobData.currency?.let { currency ->
+                                                jobData.salaryType?.let { salaryType ->
+                                                    Text("$minSal - $maxSal $currency / $salaryType")
+                                                }
+                                            }
+                                        }
+                                    }
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text("Posted 17 hours ago", style = MaterialTheme.typography.bodySmall)
+                                }
+                            }
+
+                            // Job Description Section
+                            jobData.description?.let {
+                                Card(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 8.dp),
+                                    shape = MaterialTheme.shapes.medium
+                                ) {
+                                    Column(
+                                        modifier = Modifier.padding(16.dp),
+                                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        Text("Job Description", style = MaterialTheme.typography.titleMedium)
+                                        Text(it, style = MaterialTheme.typography.bodyMedium)
+                                    }
+                                }
+                            }
+
+                            // Job Summary Section with only available fields
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = MaterialTheme.shapes.medium
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(16.dp),
+                                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    jobData.employmentType?.let {
+                                        Text("Employment: $it")
+                                    }
+                                    jobData.workplaceType?.let {
+                                        Text("Workplace: $it")
+                                    }
+                                    jobData.location?.let {
+                                        Text("Location: $it")
+                                    }
+                                }
+                            }
 
                             Spacer(modifier = Modifier.height(16.dp))
 
-                            Button(onClick = {
-                                // Apply for the job logic here
-                                val application = hashMapOf(
-                                    "jobId" to jobId,
-                                    "userEmail" to userEmail
-                                )
-                                db.collection("applications").add(application)
-                                    .addOnSuccessListener {
-                                        Log.d("JobDetailScreen", "Application successful!")
-                                    }
-                                    .addOnFailureListener { e ->
-                                        Log.w("JobDetailScreen", "Error applying for job", e)
-                                    }
-                            }) {
+                            // Apply Button
+                            Button(
+                                onClick = {
+                                    val application = hashMapOf(
+                                        "jobId" to jobId,
+                                        "userEmail" to userEmail
+                                    )
+                                    db.collection("applications").add(application)
+                                        .addOnSuccessListener {
+                                            Log.d("JobDetailScreen", "Application successful!")
+                                            // Navigate to ApplicationsScreen
+                                            navController.navigate("application")
+                                        }
+                                        .addOnFailureListener { e ->
+                                            Log.w("JobDetailScreen", "Error applying for job", e)
+                                        }
+                                },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
                                 Text("Apply")
                             }
 
                             Spacer(modifier = Modifier.height(16.dp))
 
-                            Button(onClick = { navController.popBackStack() }) {
+                            // Back Button
+                            Button(
+                                onClick = { navController.popBackStack() },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
                                 Text("Back")
                             }
                         }
@@ -117,4 +190,3 @@ fun JobDetailScreen(navController: NavController, jobId: String, userEmail: Stri
         }
     )
 }
-

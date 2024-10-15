@@ -1,5 +1,6 @@
 package com.example.alumnijobportal.screen
 
+import SharedViewModel
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
@@ -36,7 +37,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 lateinit var auth: FirebaseAuth
 
 @Composable
-fun LoginScreen(navController: NavController) {
+fun LoginScreen(navController: NavController,  sharedViewModel: SharedViewModel) {
     val context = LocalContext.current
     // Initialize Firebase Auth
     auth = FirebaseAuth.getInstance()
@@ -159,13 +160,15 @@ fun LoginScreen(navController: NavController) {
                                 // Navigate to DashboardScreen on successful sign in
                                 val userName = user?.displayName ?: "Unknown User"
                                 val userEmail = user?.email ?: "Unknown Email"
-                                // Updated navigation with proper route and arguments
-                                navController.navigate("${Screens.DashboardScreen.route}/$userName/$userEmail/$userRole") {
+                                // Update navigation to use standard NavController.navigate() without deep linking
+                                navController.navigate(Screens.DashboardScreen.route) {
+                                    // Pass user information using ViewModel or shared arguments if necessary
                                     popUpTo(Screens.LoginScreen.route) { inclusive = true }
                                     launchSingleTop = true
                                 }
+                                // If you need to set user data, you can store it in your shared ViewModel
+                                sharedViewModel.setUserInfo(userName, userEmail, userRole)
                             }, { error ->
-
                                 errorMessage = error
                             })
                         } else {
@@ -173,10 +176,9 @@ fun LoginScreen(navController: NavController) {
                         }
                     },
                     modifier = Modifier.fillMaxWidth()
-                        ) {
+                ) {
                     Text("Login")
                 }
-
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Display success or error message

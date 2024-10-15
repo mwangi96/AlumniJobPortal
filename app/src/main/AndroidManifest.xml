@@ -13,6 +13,7 @@
         android:theme="@style/Theme.AlumniJobPortal"
         android:installLocation="auto"
         tools:targetApi="31">
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -23,16 +24,6 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-
-            <!-- Deep Link Intent Filter -->
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="android-app" />
-                <data android:host="androidx.navigation" />
-                <data android:pathPattern="/dashboard_screen/.*/.*/.*/" />
             </intent-filter>
 
         </activity>

@@ -11,9 +11,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.ViewModelStoreOwner
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.alumnijobportal.nav.NavGraph
@@ -43,7 +41,7 @@ class MainActivity : ComponentActivity() {
 
                     NavGraph(
                         navController = navController,
-                        sharedViewModel = sharedViewModel
+                        sharedViewModel = sharedViewModel,
                     )
                 }
             }
@@ -57,7 +55,7 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
             NavGraph(
                 navController = navController,
-                sharedViewModel = SharedViewModel()
+                sharedViewModel = SharedViewModel() // Note: For preview, consider using a mock ViewModel if necessary
             )
         }
     }

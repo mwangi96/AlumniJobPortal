@@ -7,7 +7,7 @@ import java.util.UUID
 // JobData model for job posts
 data class JobData(
     val id: String = "",  // Document ID
-    val title: String? = null,
+    val jobTitle: String? = null,
     val companyName: String? = null,
     val workplaceType: String? = null,
     val employmentType: String? = null,
@@ -16,9 +16,7 @@ data class JobData(
     val minSalary: String? = null,
     val maxSalary: String? = null,
     val location: String? = null,
-    val description: String? = null,
-    val skills: List<String> = emptyList(),
-    val screeningQuestions: List<String> = emptyList()
+    val description: String? = null
 )
 
 class SaveJobToFirebase {
@@ -35,8 +33,6 @@ class SaveJobToFirebase {
         maxSalary: String,
         location: String,
         jobDescription: String,
-        skills: List<String>,
-        screeningQuestions: List<String>,
         onSuccess: () -> Unit,  // Callback for success case
         onFailure: (Exception) -> Unit  // Callback for failure case
     ) {
@@ -46,7 +42,7 @@ class SaveJobToFirebase {
         // Create a JobData object
         val jobData = JobData(
             id = jobId,
-            title = jobTitle,
+            jobTitle = jobTitle,
             companyName = companyName,
             workplaceType = workplaceType,
             employmentType = employmentType,
@@ -55,9 +51,7 @@ class SaveJobToFirebase {
             minSalary = minSalary,
             maxSalary = maxSalary,
             location = location,
-            description = jobDescription,
-            skills = skills,
-            screeningQuestions = screeningQuestions
+            description = jobDescription
         )
 
         // Get Firestore instance

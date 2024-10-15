@@ -2,6 +2,8 @@ package com.example.alumnijobportal.screen
 
 import android.util.Log
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
@@ -28,21 +30,14 @@ fun JobPostScreen(navController: NavHostController) {
     var location by remember { mutableStateOf("") }
     var jobDescription by remember { mutableStateOf("") }
 
-    var skillInput by remember { mutableStateOf("") }
-    var skills by remember { mutableStateOf(mutableListOf<String>()) }
-    var screeningQuestions by remember { mutableStateOf(mutableListOf<String>()) }
-    var questionInput by remember { mutableStateOf("") }
-
     Scaffold(
-        topBar = {
-            TopAppBar(title = { Text("Post a Job") })
-        },
         content = { paddingValues ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
-                    .padding(16.dp),
+                    .padding(16.dp)
+                    .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -109,52 +104,6 @@ fun JobPostScreen(navController: NavHostController) {
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                // Skills Section
-                Text("Add Skills")
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    OutlinedTextField(
-                        value = skillInput,
-                        onValueChange = { skillInput = it },
-                        label = { Text("Search/Add Skill") },
-                        modifier = Modifier.weight(1f)
-                    )
-                    IconButton(onClick = {
-                        if (skillInput.isNotEmpty()) {
-                            skills.add(skillInput)
-                            skillInput = ""
-                        }
-                    }) {
-                        Icon(Icons.Default.Add, contentDescription = "Add Skill")
-                    }
-                }
-                skills.forEach { skill -> Text(skill) }
-
-                // Screening Questions Section
-                Text("Add Screening Questions")
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    OutlinedTextField(
-                        value = questionInput,
-                        onValueChange = { questionInput = it },
-                        label = { Text("Screening Question") },
-                        modifier = Modifier.weight(1f)
-                    )
-                    IconButton(onClick = {
-                        if (questionInput.isNotEmpty()) {
-                            screeningQuestions.add(questionInput)
-                            questionInput = ""
-                        }
-                    }) {
-                        Icon(Icons.Default.Add, contentDescription = "Add Screening Question")
-                    }
-                }
-                screeningQuestions.forEach { question -> Text(question) }
-
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Preview and Post Job Buttons
@@ -169,7 +118,6 @@ fun JobPostScreen(navController: NavHostController) {
                         saveJobToFirebase.saveJobToFirebase(
                             jobTitle, companyName, workplaceType, employmentType, currency,
                             salaryType, minSalary, maxSalary, location, jobDescription,
-                            skills, screeningQuestions,
                             onSuccess = {
                                 navController.navigate("posted job")
                             },

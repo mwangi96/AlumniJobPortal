@@ -1,8 +1,10 @@
 package com.example.alumnijobportal.nav
 
+import ApplyScreen
 import LoginSignUpScreen
 import SharedViewModel
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -13,7 +15,7 @@ import com.example.alumnijobportal.screen.DashboardScreen.DashboardScreen
 @Composable
 fun NavGraph(
     navController: NavHostController,
-    sharedViewModel: SharedViewModel,
+    sharedViewModel: SharedViewModel
 ) {
     // Extract userEmail safely, providing a default if it's null
     val userEmail = sharedViewModel.userEmail.value ?: ""
@@ -48,47 +50,29 @@ fun NavGraph(
             LoginScreen(navController = navController, sharedViewModel = sharedViewModel)
         }
 
-
-        // Facebook Login screen
-        composable(route = Screens.FacebookLoginScreen.route) {
-            FacebookLoginScreen(navController = navController)
-        }
-
-        // Google Login screen
-        composable(route = Screens.GoogleLoginScreen.route) {
-            GoogleLoginScreen(navController = navController)
-        }
-
-        // Apple Login screen
-        composable(route = Screens.AppleLoginScreen.route) {
-            AppleLoginScreen(navController = navController)
-        }
-
         // JobPostScreen route
         composable(Screens.JobPostScreen.route) {
-            JobPostScreen(navController = navController)
+            JobPostScreen(navController = navController,  sharedViewModel = sharedViewModel)
         }
 
-        // Home screen without skills list
+        // HomeScreen route
         composable(route = Screens.HomeScreen.route) {
             HomeScreen(navController = navController, sharedViewModel = sharedViewModel)
         }
 
-        // ApplicantsScreen route without parameters
-        composable(route = Screens.ApplicantsScreen.route) { backStackEntry ->
-            val jobId = backStackEntry.arguments?.getString("jobId")
-            ApplicantsScreen(jobId = jobId, navController = navController)
+        // ApplicantsScreen route with sharedViewModel
+        composable(route = Screens.ApplicantsScreen.route) {
+            ApplicantsScreen(navController = navController, sharedViewModel = sharedViewModel)
         }
 
         // Applications screen
         composable(route = Screens.ApplicationScreen.route) {
-            ApplicationScreen(navController = navController, userEmail = userEmail)
+            ApplicationScreen(navController = navController, userEmail = userEmail,  sharedViewModel = sharedViewModel)
         }
 
-        // JobDetailScreen route using jobId and email
+        // JobDetailScreen now retrieves jobId from SharedViewModel
         composable(route = Screens.JobDetailScreen.route) {
-            val jobId = sharedViewModel.selectedJobId.value ?: "" // Provide a default if null
-            JobDetailScreen(navController = navController, jobId = jobId, userEmail = userEmail)
+            JobDetailScreen(navController = navController, userEmail = userEmail, sharedViewModel = sharedViewModel)
         }
 
         // Dashboard screen with proper parameters

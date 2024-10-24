@@ -1,5 +1,6 @@
 package com.example.alumnijobportal.screen
 
+import SharedViewModel
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -29,7 +30,7 @@ data class JobPosting(
 )
 
 @Composable
-fun JobsPostedScreen(navController: NavHostController) {
+fun JobsPostedScreen(navController: NavHostController, sharedViewModel: SharedViewModel) {
     var jobPostings by remember { mutableStateOf<List<JobPosting>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
@@ -85,7 +86,7 @@ fun JobsPostedScreen(navController: NavHostController) {
             jobPostings.isNotEmpty() -> {
                 // List of job postings with click handling
                 jobPostings.forEach { job ->
-                    JobCardInPostedScreen(job = job, navController = navController)
+                    JobCardInPostedScreen(job = job, navController = navController, sharedViewModel = sharedViewModel)  // Pass sharedViewModel here
                 }
             }
             else -> {
@@ -95,15 +96,20 @@ fun JobsPostedScreen(navController: NavHostController) {
     }
 }
 
+
+
 @Composable
-fun JobCardInPostedScreen(job: JobPosting, navController: NavHostController) {
+fun JobCardInPostedScreen(job: JobPosting, navController: NavHostController,  sharedViewModel: SharedViewModel) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
             .clickable {
-                // Navigate to ApplicantsScreen with the job ID using the standard navigation route
-                navController.navigate("applicants/${job.id}")
+                // Set the selected job ID in SharedViewModel
+                sharedViewModel.setSelectedJobId(job.id)
+
+                // Navigate to ApplicantsScreen
+                navController.navigate("applicants")
             },
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         shape = MaterialTheme.shapes.medium // Add rounded corners

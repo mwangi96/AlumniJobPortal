@@ -1,5 +1,6 @@
 package com.example.alumnijobportal.screen
 
+import SharedViewModel
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -9,7 +10,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 
 @Composable
-fun ChatScreen(navController: NavHostController) {
+fun ChatScreen(navController: NavHostController,  sharedViewModel: SharedViewModel) {
     // State for messages and input
     var messages by remember { mutableStateOf(listOf<String>()) }
     var messageInput by remember { mutableStateOf("") }
@@ -20,8 +21,6 @@ fun ChatScreen(navController: NavHostController) {
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Text("Chats", style = MaterialTheme.typography.titleLarge)
-
         // Display messages or a placeholder
         if (messages.isEmpty()) {
             EmptyChatPlaceholder()
@@ -40,16 +39,6 @@ fun ChatScreen(navController: NavHostController) {
                 label = { Text("Type a message") },
                 modifier = Modifier.weight(1f)
             )
-            Button(
-                onClick = {
-                    if (messageInput.isNotEmpty()) {
-                        messages = messages + messageInput // Add new message
-                        messageInput = "" // Clear input
-                    }
-                }
-            ) {
-                Text("Send")
-            }
         }
     }
 }

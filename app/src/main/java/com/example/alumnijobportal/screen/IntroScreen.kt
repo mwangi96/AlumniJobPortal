@@ -55,7 +55,7 @@ fun IntroScreen(navController: NavHostController? = null) {
                 text = "Find the best jobs around you, fast.",
                 fontSize = 28.sp,  // Increased font size for title
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onPrimary, // Using primary color from theme
+                color = MaterialTheme.colorScheme.onBackground, // Adapting text color for readability in both themes
                 modifier = Modifier.padding(bottom = 12.dp)  // Adjusted padding
             )
 
@@ -63,10 +63,11 @@ fun IntroScreen(navController: NavHostController? = null) {
             Text(
                 text = "Build your profile, explore and apply to your favorite jobs and get contacted by employers on the go.",
                 fontSize = 16.sp,
-                color = MaterialTheme.colorScheme.scrim, // Using secondary color from theme
+                color = MaterialTheme.colorScheme.onBackground, // Using onBackground color for better readability
                 modifier = Modifier.padding(bottom = 32.dp),  // Adjusted padding for spacing
                 textAlign = TextAlign.Center
             )
+
 
             Spacer(modifier = Modifier.height(5.dp))
 

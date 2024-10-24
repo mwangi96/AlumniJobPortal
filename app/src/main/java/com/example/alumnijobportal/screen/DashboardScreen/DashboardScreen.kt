@@ -1,5 +1,6 @@
 package com.example.alumnijobportal.screen.DashboardScreen
 
+import ApplyScreen
 import SharedViewModel
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -31,6 +32,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.alumnijobportal.nav.Screens
+import com.example.alumnijobportal.screen.ApplicantsScreen
 import com.example.alumnijobportal.screen.JobPostScreen
 import com.example.alumnijobportal.screen.JobsPostedScreen
 import com.example.alumnijobportal.screen.ChatScreen
@@ -86,17 +88,22 @@ fun DashboardScreen(
                 TopAppBar(
                     title = { Text(title) },
                     actions = {
-                        IconButton(onClick = {
-                            coroutineScope.launch {
-                                drawerState.open()
-                                isDrawerExpanded = !isDrawerExpanded
+                        // Show menu icon only for specific screens
+                        if ((userRole == "admin" && internalNavController.currentDestination?.route == Screens.PostedJobsScreen.route) ||
+                            (userRole == "alumni" && internalNavController.currentDestination?.route == Screens.HomeScreen.route)) {
+                            IconButton(onClick = {
+                                coroutineScope.launch {
+                                    drawerState.open()
+                                    isDrawerExpanded = true // Ensure the drawer is expanded
+                                }
+                            }) {
+                                Icon(Icons.Default.Menu, contentDescription = "Menu")
                             }
-                        }) {
-                            Icon(Icons.Default.Menu, contentDescription = "Menu")
                         }
                     },
                 )
             },
+
             bottomBar = {
                 CustomNavigationBar(userRole, internalNavController) { selectedTitle ->
                     title = selectedTitle
@@ -104,7 +111,7 @@ fun DashboardScreen(
             }
         ) { paddingValues ->
             Column(modifier = Modifier.padding(paddingValues)) {
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
                 NavHost(
                     navController = internalNavController,
@@ -112,28 +119,49 @@ fun DashboardScreen(
                     modifier = Modifier.fillMaxSize()
                 ) {
                     composable(Screens.PostedJobsScreen.route) {
-                        JobsPostedScreen(navController = internalNavController)
+                        title = "Posted Jobs" // Set title for this screen
+                        JobsPostedScreen(navController = internalNavController, sharedViewModel = sharedViewModel) // Pass sharedViewModel here
                     }
                     composable(Screens.JobPostScreen.route) {
-                        JobPostScreen(navController = internalNavController) // Just call it without navigation
+                        title = "Post a new Job" // Set title for this screen
+                        JobPostScreen(navController = internalNavController, sharedViewModel = sharedViewModel) // Pass sharedViewModel here
                     }
                     composable(Screens.ChatScreen.route) {
-                        ChatScreen(navController = internalNavController)
+                        title = "Messages" // Set title for this screen
+                        ChatScreen(navController = internalNavController, sharedViewModel = sharedViewModel) // Pass sharedViewModel here
                     }
                     composable(Screens.ProfileScreen.route) {
-                        ProfileScreen(navController = internalNavController)
+                        title = "Profile" // Set title for this screen
+                        ProfileScreen(navController = internalNavController, sharedViewModel = sharedViewModel) // Pass sharedViewModel here
                     }
-                    // In your DashboardScreen, when navigating to HomeScreen
                     composable(Screens.HomeScreen.route) {
-                        HomeScreen(navController = internalNavController, sharedViewModel = sharedViewModel) // Pass sharedViewModel
+                        title = "Available Jobs" // Set title for this screen
+                        HomeScreen(navController = internalNavController, sharedViewModel = sharedViewModel) // Already passing sharedViewModel correctly
                     }
                     composable(Screens.ApplicationScreen.route) {
-                        ApplicationScreen(navController = internalNavController, userEmail = userEmail) // Pass userEmail here
+                        title = "Applications" // Set title for this screen
+                        ApplicationScreen(navController = internalNavController, userEmail = userEmail, sharedViewModel = sharedViewModel) // Pass sharedViewModel here
                     }
-                    composable("jobDetail/{jobId}") { backStackEntry ->
-                        val jobId = backStackEntry.arguments?.getString("jobId") ?: return@composable
-                        JobDetailScreen(navController = internalNavController, jobId = jobId, userEmail = userEmail) // Pass userEmail as needed
+                    composable("jobDetail") {
+                        title = "Job Details"
+                        JobDetailScreen(
+                            navController = internalNavController,
+                            userEmail = userEmail,
+                            sharedViewModel = sharedViewModel // Use SharedViewModel to retrieve jobId
+                        )
                     }
+                    composable("applicants") {
+                        title = "Applicants" // Set title for applicants screen
+                        ApplicantsScreen(navController = internalNavController, sharedViewModel = sharedViewModel) // Pass sharedViewModel to ApplicantsScreen
+                    }
+                    composable("apply") { // Remove jobId from the route
+                        ApplyScreen(
+                            navController = internalNavController,
+                            sharedViewModel = sharedViewModel,
+                            userEmail = userEmail // pass the email here if needed
+                        )
+                    }
+
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -154,7 +182,7 @@ fun CustomNavigationBar(userType: String, navController: NavHostController, onIt
     } else {
         listOf(
             BottomNavItem("Home", NavIcon.Vector(Icons.Default.Home), Screens.HomeScreen.route),
-            BottomNavItem("Application", NavIcon.Drawable(painterResource(R.drawable.ic_applications)), Screens.ApplicationScreen.route),
+            BottomNavItem("Applied", NavIcon.Drawable(painterResource(R.drawable.ic_applications)), Screens.ApplicationScreen.route),
             BottomNavItem("Chat", NavIcon.Drawable(painterResource(R.drawable.ic_chat)), Screens.ChatScreen.route),
             BottomNavItem("Profile", NavIcon.Vector(Icons.Default.Person), Screens.ProfileScreen.route)
         )
@@ -205,21 +233,25 @@ fun AdminDrawer(isExpanded: Boolean, onToggle: () -> Unit, navController: NavHos
                     .padding(top = 60.dp)
             ) {
                 Spacer(modifier = Modifier.height(8.dp))
-                Text("Blog", modifier = Modifier
-                    .clickable { navController.navigate(Screens.BlogScreen.route) }
-                    .padding(start = 16.dp))
-                Text("Contact Us", modifier = Modifier
-                    .clickable { navController.navigate(Screens.ContactUsScreen.route) }
-                    .padding(start = 16.dp))
-                Text("Meetings", modifier = Modifier
-                    .clickable { navController.navigate(Screens.MeetingsScreen.route) }
-                    .padding(start = 16.dp))
-                Text("Logout", modifier = Modifier
-                    .clickable {
+                Text("Blog", modifier = Modifier.clickable { navController.navigate(Screens.BlogScreen.route) })
+                Spacer(modifier = Modifier.height(8.dp))
+                Text("Contact Us", modifier = Modifier.clickable { navController.navigate(Screens.ContactUsScreen.route) })
+                Spacer(modifier = Modifier.height(8.dp))
+                Text("Meetings", modifier = Modifier.clickable { navController.navigate(Screens.MeetingsScreen.route) })
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    "Logout",
+                    modifier = Modifier.clickable {
                         FirebaseAuth.getInstance().signOut()
+                        navController.navigate(Screens.LoginScreen.route) {
+                            popUpTo(navController.graph.startDestinationId) {
+                                inclusive = true // Clears the back stack
+                            }
+                        }
                     }
-                    .padding(start = 16.dp))
-                Spacer(modifier = Modifier.weight(1f))
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
             }
         }
     }
@@ -230,43 +262,39 @@ fun AlumniDrawer(isExpanded: Boolean, onToggle: () -> Unit, navController: NavHo
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(end = 16.dp) // Add padding to the right
+            .padding(end = 16.dp)
     ) {
         if (isExpanded) {
-            // Use a Column to position the content below the menu icon
             Column(
-                horizontalAlignment = Alignment.End, // Align items to the end (right)
+                horizontalAlignment = Alignment.End,
                 modifier = Modifier
-                    .align(Alignment.TopEnd) // Position at the top right corner
-                    .padding(top = 60.dp) // Adjust top padding to position below the menu icon
+                    .align(Alignment.TopEnd)
+                    .padding(top = 60.dp)
             ) {
                 Spacer(modifier = Modifier.height(8.dp))
-
-                // Add navigation for each item
-                Text("Build Resume", modifier = Modifier
-                    .clickable { navController.navigate(Screens.BuildResumeScreen.route) }
-                    .padding(start = 16.dp))
-                Text("Blog", modifier = Modifier
-                    .clickable { navController.navigate(Screens.BlogScreen.route) }
-                    .padding(start = 16.dp))
-                Text("Profile Completion Guide", modifier = Modifier
-                    .clickable { navController.navigate(Screens.ProfileCompletionGuideScreen.route) }
-                    .padding(start = 16.dp))
-                Text("Contact Us", modifier = Modifier
-                    .clickable { navController.navigate(Screens.ContactUsScreen.route) }
-                    .padding(start = 16.dp))
-                Text("Saved Jobs", modifier = Modifier
-                    .clickable { navController.navigate(Screens.SavedJobsScreen.route) }
-                    .padding(start = 16.dp))
-                Text("Meetings", modifier = Modifier
-                    .clickable { navController.navigate(Screens.MeetingsScreen.route) }
-                    .padding(start = 16.dp))
-                Text("Logout", modifier = Modifier
-                    .clickable {
+                Text("Build Resume", modifier = Modifier.clickable { navController.navigate(Screens.BuildResumeScreen.route) })
+                Spacer(modifier = Modifier.height(8.dp))
+                Text("Blog", modifier = Modifier.clickable { navController.navigate(Screens.BlogScreen.route) })
+                Spacer(modifier = Modifier.height(8.dp))
+                Text("Profile Completion Guide", modifier = Modifier.clickable { navController.navigate(Screens.ProfileCompletionGuideScreen.route) })
+                Spacer(modifier = Modifier.height(8.dp))
+                Text("Contact Us", modifier = Modifier.clickable { navController.navigate(Screens.ContactUsScreen.route) })
+                Spacer(modifier = Modifier.height(8.dp))
+                Text("Saved Jobs", modifier = Modifier.clickable { navController.navigate(Screens.SavedJobsScreen.route) })
+                Spacer(modifier = Modifier.height(8.dp))
+                Text("Meetings", modifier = Modifier.clickable { navController.navigate(Screens.MeetingsScreen.route) })
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    "Logout",
+                    modifier = Modifier.clickable {
                         FirebaseAuth.getInstance().signOut()
+                        navController.navigate(Screens.LoginScreen.route) {
+                            popUpTo(navController.graph.startDestinationId) {
+                                inclusive = true // Clears the back stack
+                            }
+                        }
                     }
-                    .padding(start = 16.dp))
-                Spacer(modifier = Modifier.weight(1f))
+                )
             }
         }
     }

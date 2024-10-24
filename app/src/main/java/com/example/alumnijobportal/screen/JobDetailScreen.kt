@@ -1,5 +1,6 @@
 package com.example.alumnijobportal.screen
 
+import SharedViewModel
 import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.layout.*
@@ -12,17 +13,22 @@ import androidx.navigation.NavController
 import com.example.alumnijobportal.utils.JobData
 import com.google.firebase.firestore.FirebaseFirestore
 
+
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun JobDetailScreen(navController: NavController, jobId: String, userEmail: String) {
+fun JobDetailScreen(navController: NavController, userEmail: String, sharedViewModel: SharedViewModel) {
+    // Get the job ID from the SharedViewModel
+    val jobId = sharedViewModel.selectedJobId.value ?: return // Exit if no jobId
     var job by remember { mutableStateOf<JobData?>(null) }
     var isLoading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+    var hasApplied by remember { mutableStateOf(false) }
     val db = FirebaseFirestore.getInstance()
 
-    // Fetch job details from Firebase
+    // Fetch job details and check if the user has applied
     LaunchedEffect(jobId) {
+        // Fetch job details
         db.collection("jobs").document(jobId)
             .get()
             .addOnSuccessListener { document ->
@@ -37,12 +43,14 @@ fun JobDetailScreen(navController: NavController, jobId: String, userEmail: Stri
                 errorMessage = "Failed to load job details: ${exception.message}"
                 isLoading = false
             }
+
+        // Check if the user has already applied for this job
+        sharedViewModel.hasUserAppliedForJob(jobId, userEmail) { result ->
+            hasApplied = result
+        }
     }
 
     Scaffold(
-        topBar = {
-            TopAppBar(title = { Text("Job Details") })
-        },
         content = {
             when {
                 isLoading -> {
@@ -73,7 +81,7 @@ fun JobDetailScreen(navController: NavController, jobId: String, userEmail: Stri
                                 .padding(16.dp),
                             verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            // Top Section with only available fields
+                            // Display job information
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -129,7 +137,7 @@ fun JobDetailScreen(navController: NavController, jobId: String, userEmail: Stri
                                 }
                             }
 
-                            // Job Summary Section with only available fields
+                            // Job Summary Section
                             Card(
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = MaterialTheme.shapes.medium
@@ -152,26 +160,27 @@ fun JobDetailScreen(navController: NavController, jobId: String, userEmail: Stri
 
                             Spacer(modifier = Modifier.height(16.dp))
 
-                            // Apply Button
-                            Button(
-                                onClick = {
-                                    val application = hashMapOf(
-                                        "jobId" to jobId,
-                                        "userEmail" to userEmail
-                                    )
-                                    db.collection("applications").add(application)
-                                        .addOnSuccessListener {
-                                            Log.d("JobDetailScreen", "Application successful!")
-                                            // Navigate to ApplicationsScreen
-                                            navController.navigate("application")
-                                        }
-                                        .addOnFailureListener { e ->
-                                            Log.w("JobDetailScreen", "Error applying for job", e)
-                                        }
-                                },
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Text("Apply")
+                            // Apply Button or "Already Applied" Text
+                            if (hasApplied) {
+                                // If user has already applied, show "Already Applied"
+                                Button(
+                                    onClick = { /* No action needed */ },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    enabled = false // Disable the button
+                                ) {
+                                    Text("Already Applied")
+                                }
+                            } else {
+                                // Apply Button
+                                Button(
+                                    onClick = {
+                                        // Navigate to the ApplyScreen, passing the jobId
+                                        navController.navigate("apply")
+                                    },
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text("Apply")
+                                }
                             }
 
                             Spacer(modifier = Modifier.height(16.dp))

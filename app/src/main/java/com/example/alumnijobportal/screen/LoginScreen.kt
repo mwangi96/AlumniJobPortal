@@ -36,8 +36,9 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 lateinit var auth: FirebaseAuth
 
+
 @Composable
-fun LoginScreen(navController: NavController,  sharedViewModel: SharedViewModel) {
+fun LoginScreen(navController: NavController, sharedViewModel: SharedViewModel) {
     val context = LocalContext.current
     // Initialize Firebase Auth
     auth = FirebaseAuth.getInstance()
@@ -56,143 +57,134 @@ fun LoginScreen(navController: NavController,  sharedViewModel: SharedViewModel)
             .background(Color.LightGray),
         contentAlignment = Alignment.Center
     ) {
-        Card(
+        Column(
             modifier = Modifier
-                .padding(16.dp)
+                .padding(32.dp) // Use padding for spacing instead of Card
                 .fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
-            elevation = CardDefaults.cardElevation(8.dp)
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Column(
+            Text(
+                text = "Login",
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.headlineMedium,
+                fontSize = 24.sp
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Image(
                 modifier = Modifier
-                    .padding(16.dp)
-                    .fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "Login",
-                    color = MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontSize = 24.sp
-                )
+                    .size(100.dp)
+                    .clip(RoundedCornerShape(56.dp)),
+                painter = painterResource(R.drawable.cropped_ist_logo),
+                contentDescription = "Login"
+            )
 
-                Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(14.dp))
 
-                Image(
-                    modifier = Modifier
-                        .size(100.dp)
-                        .clip(RoundedCornerShape(56.dp)),
-                    painter = painterResource(R.drawable.cropped_ist_logo),
-                    contentDescription = "Login"
-                )
+            TextField(
+                value = email,
+                onValueChange = { email = it },
+                label = { Text("Email") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
 
-                Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-                TextField(
-                    value = email,
-                    onValueChange = { email = it },
-                    label = { Text("Email") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Password TextField
-                TextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    label = { Text("Password") },
-                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    trailingIcon = {
-                        IconButton(onClick = {
-                            passwordVisible = !passwordVisible
-                        }) {
-                            val icon = if (passwordVisible) R.drawable.ic_visibility else R.drawable.ic_visibility_off
-                            Icon(painter = painterResource(id = icon), contentDescription = null)
-                        }
+            // Password TextField
+            TextField(
+                value = password,
+                onValueChange = { password = it },
+                label = { Text("Password") },
+                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                trailingIcon = {
+                    IconButton(onClick = {
+                        passwordVisible = !passwordVisible
+                    }) {
+                        val icon = if (passwordVisible) R.drawable.ic_visibility else R.drawable.ic_visibility_off
+                        Icon(painter = painterResource(id = icon), contentDescription = null)
                     }
-                )
+                }
+            )
 
-                Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-                // Confirm Password TextField
-                TextField(
-                    value = confirmPassword,
-                    onValueChange = { confirmPassword = it },
-                    label = { Text("Confirm Password") },
-                    visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    trailingIcon = {
-                        IconButton(onClick = {
-                            confirmPasswordVisible = !confirmPasswordVisible
-                        }) {
-                            val icon = if (confirmPasswordVisible) R.drawable.ic_visibility else R.drawable.ic_visibility_off
-                            Icon(painter = painterResource(id = icon), contentDescription = null)
-                        }
+            // Confirm Password TextField
+            TextField(
+                value = confirmPassword,
+                onValueChange = { confirmPassword = it },
+                label = { Text("Confirm Password") },
+                visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                trailingIcon = {
+                    IconButton(onClick = {
+                        confirmPasswordVisible = !confirmPasswordVisible
+                    }) {
+                        val icon = if (confirmPasswordVisible) R.drawable.ic_visibility else R.drawable.ic_visibility_off
+                        Icon(painter = painterResource(id = icon), contentDescription = null)
                     }
-                )
+                }
+            )
 
-                Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-                // Forgot Password
-                TextButton(onClick = {
-                    if (email.isNotEmpty()) {
-                        forgotPassword(email, context) // Trigger forgot password function
+            // Forgot Password
+            TextButton(onClick = {
+                if (email.isNotEmpty()) {
+                    forgotPassword(email, context)
+                } else {
+                    Toast.makeText(context, "Please enter your email first", Toast.LENGTH_SHORT).show()
+                }
+            }) {
+                Text(text = "Forgot Password?", color = MaterialTheme.colorScheme.primary)
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Handle login logic
+            Button(
+                onClick = {
+                    if (password == confirmPassword) {
+                        signIn(email, password, { user, userRole ->
+                            successMessage = "Login successfully"
+                            // Navigate to DashboardScreen on successful sign in
+                            val userName = user?.displayName ?: "Unknown User"
+                            val userEmail = user?.email ?: "Unknown Email"
+                            navController.navigate(Screens.DashboardScreen.route) {
+                                popUpTo(Screens.LoginScreen.route) { inclusive = true }
+                                launchSingleTop = true
+                            }
+                            sharedViewModel.setUserInfo(userName, userEmail, userRole)
+                        }, { error ->
+                            errorMessage = error
+                        })
                     } else {
-                        Toast.makeText(context, "Please enter your email first", Toast.LENGTH_SHORT).show()
+                        errorMessage = "Passwords do not match"
                     }
-                }) {
-                    Text(text = "Forgot Password?", color = MaterialTheme.colorScheme.primary)
-                }
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Login")
+            }
 
-                Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-                // Handle login logic (this could be a form where the user enters email and password)
-                Button(
-                    onClick = {
-                        if (password == confirmPassword) {
-                            signIn(email, password, { user, userRole ->
-                                successMessage = "Login successfully"
-                                // Navigate to DashboardScreen on successful sign in
-                                val userName = user?.displayName ?: "Unknown User"
-                                val userEmail = user?.email ?: "Unknown Email"
-                                // Update navigation to use standard NavController.navigate() without deep linking
-                                navController.navigate(Screens.DashboardScreen.route) {
-                                    // Pass user information using ViewModel or shared arguments if necessary
-                                    popUpTo(Screens.LoginScreen.route) { inclusive = true }
-                                    launchSingleTop = true
-                                }
-                                // If you need to set user data, you can store it in your shared ViewModel
-                                sharedViewModel.setUserInfo(userName, userEmail, userRole)
-                            }, { error ->
-                                errorMessage = error
-                            })
-                        } else {
-                            errorMessage = "Passwords do not match"
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Login")
-                }
-                Spacer(modifier = Modifier.height(16.dp))
+            // Display success or error message
+            errorMessage?.let {
+                Text(text = it, color = Color.Red)
+            }
 
-                // Display success or error message
-                errorMessage?.let {
-                    Text(text = it, color = Color.Red)
-                }
-
-                successMessage?.let {
-                    Text(text = it, color = Color.Green)
-                }
+            successMessage?.let {
+                Text(text = it, color = Color.Green)
             }
         }
     }
 }
+
 
 
 private fun forgotPassword(email: String, context: Context) {

@@ -1,5 +1,6 @@
 package com.example.alumnijobportal.screen
 
+import SharedViewModel
 import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -16,7 +17,7 @@ import com.example.alumnijobportal.utils.SaveJobToFirebase
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun JobPostScreen(navController: NavHostController) {
+fun JobPostScreen(navController: NavHostController,  sharedViewModel: SharedViewModel) {
     val saveJobToFirebase = SaveJobToFirebase()
 
     var jobTitle by remember { mutableStateOf("") }

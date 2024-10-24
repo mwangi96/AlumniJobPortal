@@ -49,7 +49,8 @@ android {
     }
     packaging {
         resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "/META-INF/versions/9/OSGI-INF/MANIFEST.MF" // Exclude the conflicting file
+            excludes += "/META-INF/{AL2.0,LGPL2.1}" // Keep this line if you still want to exclude these files
         }
     }
 }
@@ -91,6 +92,10 @@ dependencies {
     implementation(libs.support.annotations)
     implementation(libs.firebase.vertexai)
     implementation(libs.material)
+    implementation(libs.firebase.storage.ktx)
+    implementation(libs.identity.jvm)
+    implementation(libs.androidx.runtime.livedata)
+    implementation(libs.firebase.database.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -98,4 +103,5 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    implementation("org.bouncycastle:bcprov-jdk18on:1.78.1") // Use a specific version
 }

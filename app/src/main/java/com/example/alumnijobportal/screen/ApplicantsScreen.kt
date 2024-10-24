@@ -1,5 +1,6 @@
 package com.example.alumnijobportal.screen
 
+import SharedViewModel
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -11,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.alumnijobportal.utils.JobData
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.toObject
 
@@ -24,20 +26,38 @@ data class Applicant(
     val applicationStatus: String = "Application Received" // Add status field
 )
 
+
 @Composable
-fun ApplicantsScreen(jobId: String?, navController: NavHostController) {
+fun ApplicantsScreen(navController: NavHostController, sharedViewModel: SharedViewModel) {
     var applicants by remember { mutableStateOf<List<Applicant>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+    var jobTitle by remember { mutableStateOf<String?>(null) } // State to hold the job title
 
     // Firebase Firestore instance
     val db = FirebaseFirestore.getInstance()
+    val selectedJobId = sharedViewModel.selectedJobId.value
 
-    // Fetch applicants from Firestore
-    LaunchedEffect(jobId) {
-        if (jobId != null) {
+    // Fetch job details to get the jobTitle based on selectedJobId
+    LaunchedEffect(selectedJobId) {
+        if (selectedJobId != null) {
+            db.collection("jobs").document(selectedJobId)
+                .get()
+                .addOnSuccessListener { document ->
+                    val jobData = document.toObject(JobData::class.java)
+                    jobTitle = jobData?.jobTitle // Retrieve the jobTitle
+                }
+                .addOnFailureListener {
+                    jobTitle = "Unknown Job" // Handle case where jobTitle is unavailable
+                }
+        }
+    }
+
+    // Fetch applicants for the selected job
+    LaunchedEffect(selectedJobId) {
+        if (selectedJobId != null) {
             db.collection("applications")
-                .whereEqualTo("jobId", jobId)
+                .whereEqualTo("jobId", selectedJobId)
                 .get()
                 .addOnSuccessListener { result ->
                     applicants = result.mapNotNull { document ->
@@ -59,20 +79,12 @@ fun ApplicantsScreen(jobId: String?, navController: NavHostController) {
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalAlignment = Alignment.Start
     ) {
-        // Search bar
-        OutlinedTextField(
-            value = "", // You can implement search functionality here
-            onValueChange = { },
-            modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text("Search for a Person") }
-        )
-
-        // Applicants header
-        Text(
-            text = "Job Applicants",
-            style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.padding(vertical = 8.dp)
-        )
+        // Display the job title instead of jobId
+        if (jobTitle != null) {
+            Text("Showing applicants for: $jobTitle", style = MaterialTheme.typography.titleLarge)
+        } else {
+            Text("Loading job details...")
+        }
 
         when {
             isLoading -> {
@@ -138,3 +150,4 @@ fun ApplicantCard(applicant: Applicant) {
         }
     }
 }
+

@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.alumnijobportal.nav.Screens
 import com.example.alumnijobportal.utils.JobData
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -57,40 +58,29 @@ fun HomeScreen(navController: NavHostController, sharedViewModel: SharedViewMode
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(jobPosting) { job ->
-                // Convert JobData to JobPosting before passing
-                val jobPosting = JobPosting(
-                    id = job.id,
-                    jobTitle = job.jobTitle ?: "",
-                    companyName = job.companyName ?: "",
-                    location = job.location ?: "",
-                    jobDescription = job.description ?: "",
-                    minSalary = job.minSalary ?: "",
-                    maxSalary = job.maxSalary ?: "",
-                    salaryType = job.salaryType ?: "",
-                    employmentType = job.employmentType ?: ""
-                )
-                JobCardInHomeScreen(job = jobPosting) {
-                    // Use standard navigation without deep linking
-                    // Set the selected job ID before navigating
-                    sharedViewModel.setSelectedJobId(jobPosting.id)
-                    val email = sharedViewModel.userEmail.value ?: "default@example.com"
-                    navController.navigate("jobDetail/${jobPosting.id}/$email") // Keeping this for direct navigation
-                }
+                // Pass the job directly to JobCardInHomeScreen
+                JobCardInHomeScreen(job = job, navController = navController, sharedViewModel = sharedViewModel)
             }
         }
     }
 }
 
+
 @Composable
 fun JobCardInHomeScreen(
-    job: JobPosting,
-    onClick: () -> Unit // Keep the lambda parameter for handling click
+    job: JobData, navController: NavHostController,  sharedViewModel: SharedViewModel
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
-            .clickable { onClick() }, // Use the onClick lambda here
+            .clickable {
+                // Set the selected job ID in SharedViewModel
+                sharedViewModel.setSelectedJobId(job.id)
+
+                // Navigate to job details
+                navController.navigate("jobDetail")
+            },
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         shape = MaterialTheme.shapes.medium // Add rounded corners
     ) {
@@ -98,14 +88,18 @@ fun JobCardInHomeScreen(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            // Job Title and Company Name
-            Text(job.jobTitle, style = MaterialTheme.typography.titleMedium, color = Color.White)
-            Text(job.companyName, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
+
+            // Job Title and Company Name with default values
+            Text(job.jobTitle ?: "Unknown Title", style = MaterialTheme.typography.titleMedium, color = Color.White)
+            Text(job.companyName ?: "Unknown Company", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
             // Job Details
-            Text(job.location, style = MaterialTheme.typography.bodyMedium)
-            Text("${job.minSalary} - ${job.maxSalary} / ${job.salaryType}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
+            Text(job.location ?: "Unknown Location", style = MaterialTheme.typography.bodyMedium)
+            Text(
+                "${job.minSalary ?: 0} - ${job.maxSalary ?: 0} / ${job.salaryType ?: "N/A"}",
+                style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary
+            )
 
             // Employment Type styled like a button
             Surface(
@@ -117,7 +111,7 @@ fun JobCardInHomeScreen(
                 contentColor = MaterialTheme.colorScheme.onSecondary // Text color
             ) {
                 Text(
-                    job.employmentType,
+                    job.employmentType ?: "Unknown Type",
                     modifier = Modifier.padding(8.dp), // Padding inside the button
                     style = MaterialTheme.typography.bodyMedium
                 )
